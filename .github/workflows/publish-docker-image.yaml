@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feat/dynamic-relay-configuration
+      - feat/dynamic-relay-configuration-leak
 
 permissions:
   contents: write
