@@ -14,8 +14,8 @@ var (
 	ErrMissingRelayPubKey = fmt.Errorf("missing relay public key")
 	// ErrInvalidRelayURL is returned if a new Entry has malformed relayURL.
 	ErrInvalidRelayURL = fmt.Errorf("invalid relay url")
-	// ErrPointAtInfinityPubKey is returned if a new RelayEntry URL has an all-zero public key.
-	ErrPointAtInfinityPubKey = fmt.Errorf("relay public key cannot be the point-at-infinity")
+	// ErrPointAtInfinityPubkey is returned if a new RelayEntry URL has an all-zero public key.
+	ErrPointAtInfinityPubkey = fmt.Errorf("relay public key cannot be the point-at-infinity")
 )
 
 type (
@@ -79,7 +79,7 @@ func NewRelayEntry(relayURL string) (Entry, error) {
 
 	// Check if the public key is the point-at-infinity.
 	if bytes.Equal(pubKey[:], pointAtInfinityPubKey[:]) {
-		return Entry{}, ErrPointAtInfinityPubKey
+		return Entry{}, ErrPointAtInfinityPubkey
 	}
 
 	return Entry{

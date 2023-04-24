@@ -44,6 +44,17 @@ type httpErrorResp struct {
 	Message string `json:"message"`
 }
 
+type (
+	payloadByValidator map[relay.ValidatorPublicKey]types.SignedValidatorRegistration
+	payloadsByRelay    map[relay.Entry][]types.SignedValidatorRegistration
+)
+
+func (v payloadsByRelay) add(relays relay.List, payload types.SignedValidatorRegistration) {
+	for _, r := range relays {
+		v[r] = append(v[r], payload)
+	}
+}
+
 // AuctionTranscript is the bid and blinded block received from the relay send to the relay monitor
 type AuctionTranscript struct {
 	Bid        *SignedBuilderBid               `json:"bid"`
@@ -250,17 +261,6 @@ func (m *BoostService) handleStatus(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-type (
-	payloadByValidator map[relay.ValidatorPublicKey]types.SignedValidatorRegistration
-	payloadsByRelay    map[relay.Entry][]types.SignedValidatorRegistration
-)
-
-func (v payloadsByRelay) add(relays relay.List, payload types.SignedValidatorRegistration) {
-	for _, r := range relays {
-		v[r] = append(v[r], payload)
-	}
-}
-
 // handleRegisterValidator - returns 200 if at least one relay returns 200, else 502
 func (m *BoostService) handleRegisterValidator(w http.ResponseWriter, req *http.Request) {
 	log := m.log.WithField("method", "registerValidator")
@@ -277,29 +277,25 @@ func (m *BoostService) handleRegisterValidator(w http.ResponseWriter, req *http.
 		"ua":               ua,
 	}).Info("registering validators")
 
-	validatorPayloads := make(payloadByValidator, len(payload))
+	validatorPayloads := make(payloadByValidator)
 	for _, p := range payload {
 		pubKey := p.Message.Pubkey.String()
 		validatorPayloads[pubKey] = p
 	}
 
-	relayPayloads := make(payloadsByRelay, len(m.relayConfigurator.AllRelays()))
+	relayPayloads := make(payloadsByRelay)
 	for pubKey, p := range validatorPayloads {
 		relays := m.relayConfigurator.RelaysForProposer(pubKey)
 		if len(relays) < 1 {
 			log.Warnf("there are no relays specified for %s", pubKey)
+			continue
 		}
 		relayPayloads.add(relays, p)
 	}
 
-	wg := new(sync.WaitGroup)
 	relayErrCh := make(chan error, len(relayPayloads))
-
 	for r, payloads := range relayPayloads {
-		wg.Add(1)
-
 		go func(r relay.Entry, payloads []types.SignedValidatorRegistration) {
-			defer wg.Done()
 			relayURL := r.GetURI(pathRegisterValidator)
 			_, err := SendHTTPRequest(context.Background(), m.httpClientRegVal, http.MethodPost, relayURL, ua, payloads, nil)
 			relayErrCh <- err
@@ -312,13 +308,9 @@ func (m *BoostService) handleRegisterValidator(w http.ResponseWriter, req *http.
 
 	go m.sendValidatorRegistrationsToRelayMonitors(payload)
 
-	go func() {
-		wg.Wait()
-		close(relayErrCh)
-	}()
-
-	for err := range relayErrCh {
-		if err == nil {
+	for i := 0; i < len(relayPayloads); i++ {
+		respErr := <-relayErrCh
+		if respErr == nil {
 			m.respondOK(w, nilResponse)
 			return
 		}
