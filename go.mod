@@ -4,12 +4,12 @@ go 1.20
 
 require (
 	github.com/ethereum/go-ethereum v1.11.6
-	github.com/flashbots/go-boost-utils v1.5.0
+	github.com/flashbots/go-boost-utils v1.6.0
 	github.com/flashbots/go-utils v0.4.8
 	github.com/gorilla/mux v1.8.0
 	github.com/holiman/uint256 v1.2.2
-	github.com/sirupsen/logrus v1.9.0
-	github.com/stretchr/testify v1.8.2
+	github.com/sirupsen/logrus v1.9.2
+	github.com/stretchr/testify v1.8.3
 	go.uber.org/goleak v1.1.11
 )
 
@@ -22,7 +22,7 @@ require (
 	github.com/cockroachdb/pebble v0.0.0-20230209160836-829675f94811 // indirect
 	github.com/cockroachdb/redact v1.1.3 // indirect
 	github.com/consensys/bavard v0.1.13 // indirect
-	github.com/consensys/gnark-crypto v0.10.0 // indirect
+	github.com/consensys/gnark-crypto v0.11.0 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/getsentry/sentry-go v0.18.0 // indirect
 	github.com/goccy/go-yaml v1.9.6 // indirect
@@ -52,8 +52,8 @@ require (
 require (
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
 	github.com/VictoriaMetrics/fastcache v1.6.0 // indirect
-	github.com/attestantio/go-builder-client v0.2.8
-	github.com/attestantio/go-eth2-client v0.15.8
+	github.com/attestantio/go-builder-client v0.3.0
+	github.com/attestantio/go-eth2-client v0.16.3
 	github.com/btcsuite/btcd v0.22.0-beta // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect

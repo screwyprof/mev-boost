@@ -37,19 +37,19 @@ test:
 test-race:
 	CGO_ENABLED=1 go test -race ./...
 
-.PHONY: fmt
-fmt:
-	gofmt -s -w .
-	gofumpt -extra -w .
-	gci write . -s standard,default
-	go mod tidy
-
 .PHONY: lint
 lint:
 	gofmt -d -s .
 	gofumpt -d -extra .
 	staticcheck ./...
 	golangci-lint run
+
+.PHONY: fmt
+fmt:
+	gofmt -s -w .
+	gofumpt -extra -w .
+	gci write .
+	go mod tidy
 
 .PHONY: test-coverage
 test-coverage:
